@@ -197,12 +197,28 @@ export default function KidsWeatherApp() {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(getLocationWeather, handleGeoError); } else { setWeather(getFallbackWeather()); } }, []);
 
-  async function fetchAll() {
+  function getFallbackWeather() {
+    // 위치 권한 거부 시 경주 기본값
+    return {
+      city:"경주", temp:9, feels:8, min:4, max:15, humidity:60,
+      condition:"맑음", conditionEn:"Clear", rainChance:10, wind:5, pm10:45, pm25:25,
+      hourly:[
+        {hour:7,temp:7,icon:"🌤️",rain:5},{hour:8,temp:9,icon:"🌤️",rain:10},
+        {hour:9,temp:11,icon:"☀️",rain:5},{hour:10,temp:13,icon:"☀️",rain:0},
+        {hour:11,temp:15,icon:"☀️",rain:0},
+      ],
+    };
+  }
+
+  function handleGeoError() {
+    setWeather(getFallbackWeather());
+  }
+
+  async function fetchAll(lat, lon) {
     setLoading(true);
     try {
-      const lat = 35.8562, lon = 129.2247;
       const KEY = "***OPENWEATHER_KEY_REMOVED***";
       const [curRes, fcRes, airRes] = await Promise.all([
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${KEY}&units=metric&lang=kr`),
