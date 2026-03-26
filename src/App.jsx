@@ -191,18 +191,29 @@ export default function KidsWeatherApp() {
   const [weather, setWeather]   = useState(null);
   const [loading, setLoading]   = useState(true);
   const [time, setTime]         = useState(new Date());
+  const [coords, setCoords]     = useState({ lat: 37.5665, lon: 126.9780 }); // 기본값 서울
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(getLocationWeather, handleGeoError); } else { setWeather(getFallbackWeather()); } }, []);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchAll(pos.coords.latitude, pos.coords.longitude),
+        handleGeoError
+      );
+    } else {
+      // 서울 기본 좌표로 API 호출
+      fetchAll(37.5665, 126.9780);
+    }
+  }, []);
 
   function getFallbackWeather() {
-    // 위치 권한 거부 시 경주 기본값
+    // 위치 권한 거부 시 서울 기본값
     return {
-      city:"경주", temp:9, feels:8, min:4, max:15, humidity:60,
+      city:"서울", temp:9, feels:8, min:4, max:15, humidity:60,
       condition:"맑음", conditionEn:"Clear", rainChance:10, wind:5, pm10:45, pm25:25,
       hourly:[
         {hour:7,temp:7,icon:"🌤️",rain:5},{hour:8,temp:9,icon:"🌤️",rain:10},
@@ -213,10 +224,12 @@ export default function KidsWeatherApp() {
   }
 
   function handleGeoError() {
-    setWeather(getFallbackWeather());
+    // GPS 거부 시 서울 좌표로 API 호출
+    fetchAll(37.5665, 126.9780);
   }
 
   async function fetchAll(lat, lon) {
+    setCoords({ lat, lon });
     setLoading(true);
     try {
       const KEY = "***OPENWEATHER_KEY_REMOVED***";
@@ -230,10 +243,18 @@ export default function KidsWeatherApp() {
       const air = await airRes.json();
       const todayItems = fc.list.filter(i => new Date(i.dt*1000).getDate() === new Date().getDate()).slice(0,5);
       const maxRain = Math.round(Math.max(...todayItems.map(i=>(i.pop||0)*100), 0));
+      // 오늘 forecast에서 낮 최고기온 계산
+      const todayAllItems = fc.list.filter(i => new Date(i.dt*1000).getDate() === new Date().getDate());
+      const forecastMax = todayAllItems.length > 0
+        ? Math.round(Math.max(...todayAllItems.map(i => i.main.temp_max)))
+        : Math.round(cur.main.temp_max);
+      const forecastMin = todayAllItems.length > 0
+        ? Math.round(Math.min(...todayAllItems.map(i => i.main.temp_min)))
+        : Math.round(cur.main.temp_min);
       const comp = air.list?.[0]?.components || {};
       setWeather({
-        city:"경주", temp:Math.round(cur.main.temp), feels:Math.round(cur.main.feels_like),
-        min:Math.round(cur.main.temp_min), max:Math.round(cur.main.temp_max),
+        city: cur.name || "서울", temp:Math.round(cur.main.temp), feels:Math.round(cur.main.feels_like),
+        min: forecastMin, max: forecastMax,
         humidity:cur.main.humidity, condition:cur.weather[0].description,
         conditionEn:cur.weather[0].main, rainChance:maxRain,
         wind:Math.round(cur.wind.speed*3.6),
@@ -244,15 +265,7 @@ export default function KidsWeatherApp() {
         })),
       });
     } catch {
-      setWeather({
-        city:"경주", temp:14, feels:12, min:9, max:17, humidity:65,
-        condition:"구름 조금", conditionEn:"Clouds", rainChance:20, wind:8, pm10:48, pm25:28,
-        hourly:[
-          {hour:7,temp:11,icon:"🌤️",rain:10},{hour:8,temp:12,icon:"⛅",rain:15},
-          {hour:9,temp:13,icon:"⛅",rain:20},{hour:10,temp:14,icon:"🌤️",rain:15},
-          {hour:11,temp:16,icon:"☀️",rain:5},
-        ],
-      });
+      setWeather(getFallbackWeather());
     } finally { setLoading(false); }
   }
 
@@ -269,7 +282,9 @@ export default function KidsWeatherApp() {
     </div>
   );
 
-  const outfit  = getOutfitAdvice(weather.temp);
+  // 현재기온과 낮 최고기온 중 높은 값으로 옷차림 추천 (아침에 추워도 낮에 더워질 수 있으므로)
+  const outfitTemp = Math.max(weather.temp, weather.max);
+  const outfit  = getOutfitAdvice(outfitTemp);
   const rainAdv = getRainAdvice(weather.rainChance);
   const dust    = getDustGrade(weather.pm10, weather.pm25);
   const wEmoji  = getWeatherEmoji(weather.conditionEn);
@@ -456,7 +471,7 @@ export default function KidsWeatherApp() {
         )}
 
         {/* ── 새로고침 ── */}
-        <button onClick={fetchAll} style={{ background:"linear-gradient(135deg,#FF9500,#FF6B35)", color:"white", border:"none", borderRadius:20, padding:"14px 0", fontSize:15, fontWeight:800, cursor:"pointer", width:"100%", boxShadow:"0 4px 20px rgba(255,149,0,0.35)" }}>
+        <button onClick={() => fetchAll(coords.lat, coords.lon)} style={{ background:"linear-gradient(135deg,#FF9500,#FF6B35)", color:"white", border:"none", borderRadius:20, padding:"14px 0", fontSize:15, fontWeight:800, cursor:"pointer", width:"100%", boxShadow:"0 4px 20px rgba(255,149,0,0.35)" }}>
           🔄 날씨 새로고침
         </button>
         <div style={{textAlign:"center",fontSize:11,color:"#CCC"}}>오늘도 안전한 등원 되세요 🌟</div>
