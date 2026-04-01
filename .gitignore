@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+*.pem
+*.key
+credentials.json
+token.json
+client_secret*.json
