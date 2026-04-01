@@ -12,9 +12,6 @@ const MESSAGES = {
   HOT:            '더워요. 얇게 입히고 물병 챙기세요 💧',
   HEAT_ALERT:     '폭염이에요. 물병 꼭 챙기고 야외활동 조심하세요 🥵',
   COLD_ALERT:     '한파에요. 완전 방한하고 가세요 🥶',
-  // 미세먼지
-  AIR_BAD:        '미세먼지 나빠요. 마스크 챙기세요 😷',
-  AIR_BAD_RAIN:   '비도 오고 공기도 안 좋아요. 우산이랑 마스크 챙기세요 ☔😷',
   // 기본
   GOOD:           '등원하기 좋은 날씨예요 🙂',
 }
@@ -24,12 +21,9 @@ export function buildWeatherMessage({ tempLevel, rainRisk, riskFlags }) {
   if (riskFlags.includes('HEAT_ALERT')) return MESSAGES.HEAT_ALERT
   if (riskFlags.includes('COLD_ALERT')) return MESSAGES.COLD_ALERT
 
-  if (riskFlags.includes('RAIN') && riskFlags.includes('AIR_BAD')) return MESSAGES.AIR_BAD_RAIN
   if (riskFlags.includes('RAIN') && tempLevel === 'HOT') return MESSAGES.RAIN_HOT
   if (riskFlags.includes('RAIN') && (tempLevel === 'COLD' || tempLevel === 'VERY_COLD')) return MESSAGES.RAIN_COLD
   if (riskFlags.includes('RAIN')) return MESSAGES.RAIN_MILD
-
-  if (riskFlags.includes('AIR_BAD')) return MESSAGES.AIR_BAD
 
   if (tempLevel === 'VERY_COLD') return MESSAGES.VERY_COLD
   if (tempLevel === 'COLD') return MESSAGES.COLD
