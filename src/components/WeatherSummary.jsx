@@ -1,5 +1,4 @@
-// 결론 한 문장 + 온도/비 기본 정보
-import { buildWeatherMessage } from '../utils/weatherMessageBuilder'
+// 날씨 요약 헤더 — 온도/비/체감 정보만
 
 const BG_COLORS = {
   VERY_COLD: { accent: '#AF52DE' },
@@ -10,7 +9,6 @@ const BG_COLORS = {
 }
 
 export default function WeatherSummary({ decision, weather }) {
-  const message = buildWeatherMessage(decision)
   const theme = BG_COLORS[decision.tempLevel] || BG_COLORS.MILD
 
   const now = new Date()
@@ -65,18 +63,6 @@ export default function WeatherSummary({ decision, weather }) {
         </div>
       </div>
 
-      {/* 핵심 메시지 */}
-      <div style={{
-        marginTop: 16,
-        fontSize: 18,
-        fontWeight: 900,
-        lineHeight: 1.4,
-        background: 'rgba(255,255,255,0.18)',
-        borderRadius: 14,
-        padding: '12px 16px',
-      }}>
-        {message}
-      </div>
       <style>{`@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}`}</style>
     </div>
   )
