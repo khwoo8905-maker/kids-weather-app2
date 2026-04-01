@@ -3,6 +3,28 @@
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY
 
+// 기상청 전문용어 → 일상 표현
+function friendlyCondition(raw) {
+  const map = {
+    '박무': '안개 낀 날씨',
+    '연무': '뿌연 날씨',
+    '실 비': '가랑비',
+    '온흐림': '흐린 날씨',
+    '소나기': '소나기',
+    '뇌우': '천둥번개',
+    '맑음': '맑음',
+    '구름많음': '구름 많음',
+    '구름조금': '구름 조금',
+    '흐림': '흐림',
+    '튼구름': '구름 많음',
+    '안개': '안개',
+  }
+  for (const [term, friendly] of Object.entries(map)) {
+    if (raw.includes(term)) return friendly
+  }
+  return raw
+}
+
 function getWeatherEmoji(condition) {
   const c = (condition || '').toLowerCase()
   if (c.includes('thunderstorm')) return '⛈️'
@@ -47,6 +69,7 @@ export async function fetchWeather(lat, lon) {
     maxTemp: forecastMax,
     humidity: cur.main.humidity,
     condition: cur.weather[0].description,
+    friendlyCondition: friendlyCondition(cur.weather[0].description),
     conditionEn: cur.weather[0].main,
     conditionEmoji: getWeatherEmoji(cur.weather[0].main),
     rainChance: maxRain,

@@ -42,14 +42,11 @@ export default function WeatherSummary({ decision, weather }) {
         </div>
       </div>
 
-      {/* 온도 + 비 기본 정보 */}
-      <div style={{ marginTop: 16, display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <div style={{ fontSize: 56, fontWeight: 900, lineHeight: 1 }}>{weather.temp}°</div>
-        <div>
-          <div style={{ fontSize: 14, opacity: 0.9 }}>{weather.condition}</div>
-          <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>
-            최저 {weather.minTemp}° / 최고 {weather.maxTemp}°
-          </div>
+      {/* 온도 + 날씨 요약 */}
+      <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ fontSize: 28, fontWeight: 900 }}>{weather.temp}°</div>
+        <div style={{ fontSize: 13, opacity: 0.85 }}>
+          {weather.friendlyCondition} · 최저 {weather.minTemp}° / 최고 {weather.maxTemp}°
         </div>
       </div>
 
