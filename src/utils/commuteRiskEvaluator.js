@@ -11,10 +11,7 @@ export function evaluateCommuteRisks({ feelsLike, pm10, pm25 }) {
   const dustGrade = getDustGrade(pm10, pm25)
   if (dustGrade >= 2) {
     risks.push('AIR_BAD')
-    recommendations.push(dustGrade >= 3
-      ? 'KF94 마스크 꼭 챙기세요 🚨'
-      : '마스크 챙기세요 😷'
-    )
+    recommendations.push('마스크 챙기세요 😷')
   }
 
   // 폭염

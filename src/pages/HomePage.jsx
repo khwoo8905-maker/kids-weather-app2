@@ -5,6 +5,7 @@ import WeatherSummary from '../components/WeatherSummary'
 import OutfitGuide from '../components/OutfitGuide'
 import CommuteAlert from '../components/CommuteAlert'
 import CommuteChecklist from '../components/CommuteChecklist'
+import BrandCollab from '../components/BrandCollab'
 
 export default function HomePage({ weather, decision, refresh, onSettings }) {
   return (
@@ -31,10 +32,13 @@ export default function HomePage({ weather, decision, refresh, onSettings }) {
         <CommuteAlert weather={weather} />
 
         {/* 3. 옷차림 가이드 */}
-        <OutfitGuide decision={decision} />
+        <OutfitGuide decision={decision} weather={weather} />
 
         {/* 4. 준비물 체크리스트 — 심리적 종료 */}
         <CommuteChecklist decision={decision} weather={weather} />
+
+        {/* 5. 광고 */}
+        <BrandCollab />
 
         {/* 새로고침 + 설정 */}
         <button

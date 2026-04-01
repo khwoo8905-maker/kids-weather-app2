@@ -1,12 +1,12 @@
-// 결론 한 문장 — 스크롤 최상단, 3초 안에 행동 결정
+// 결론 한 문장 + 온도/비 기본 정보
 import { buildWeatherMessage } from '../utils/weatherMessageBuilder'
 
 const BG_COLORS = {
-  VERY_COLD: { bg: '#F0E6FF', color: '#8B0000', accent: '#AF52DE' },
-  COLD:      { bg: '#EEF4FF', color: '#007AFF', accent: '#5856D6' },
-  MILD:      { bg: '#EEFFF3', color: '#34C759', accent: '#34C759' },
-  WARM:      { bg: '#FFF8EE', color: '#FF9500', accent: '#FF9500' },
-  HOT:       { bg: '#FFF3EE', color: '#FF4500', accent: '#FF4500' },
+  VERY_COLD: { accent: '#AF52DE' },
+  COLD:      { accent: '#5856D6' },
+  MILD:      { accent: '#34C759' },
+  WARM:      { accent: '#FF9500' },
+  HOT:       { accent: '#FF4500' },
 }
 
 export default function WeatherSummary({ decision, weather }) {
@@ -15,6 +15,7 @@ export default function WeatherSummary({ decision, weather }) {
 
   const now = new Date()
   const dateStr = now.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
+  const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
 
   return (
     <div style={{
@@ -34,18 +35,48 @@ export default function WeatherSummary({ decision, weather }) {
           <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>
             아침 등원 날씨
           </div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginTop: 3 }}>🕐 {timeStr} 기준</div>
         </div>
         <div style={{ fontSize: 48, lineHeight: 1, animation: 'float 3s ease-in-out infinite' }}>
           {weather.conditionEmoji}
         </div>
       </div>
-      {/* 핵심 메시지 — 이것만 보고 행동 */}
+
+      {/* 온도 + 비 기본 정보 */}
+      <div style={{ marginTop: 16, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+        <div style={{ fontSize: 56, fontWeight: 900, lineHeight: 1 }}>{weather.temp}°</div>
+        <div>
+          <div style={{ fontSize: 14, opacity: 0.9 }}>{weather.condition}</div>
+          <div style={{ fontSize: 12, opacity: 0.7, marginTop: 2 }}>
+            최저 {weather.minTemp}° / 최고 {weather.maxTemp}°
+          </div>
+        </div>
+      </div>
+
+      {/* 비 + 체감 뱃지 */}
+      <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {weather.rainChance > 0 && (
+          <div style={{ background: 'rgba(255,255,255,0.22)', borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 700 }}>
+            🌧️ 강수 {weather.rainChance}%
+          </div>
+        )}
+        <div style={{ background: 'rgba(255,255,255,0.22)', borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 700 }}>
+          체감 {weather.feelsLike}°
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.22)', borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 700 }}>
+          💨 {weather.wind}km/h
+        </div>
+      </div>
+
+      {/* 핵심 메시지 */}
       <div style={{
-        marginTop: 20,
-        fontSize: 20,
+        marginTop: 16,
+        fontSize: 18,
         fontWeight: 900,
         lineHeight: 1.4,
-        textShadow: '0 1px 4px rgba(0,0,0,0.15)',
+        background: 'rgba(255,255,255,0.18)',
+        borderRadius: 14,
+        padding: '12px 16px',
       }}>
         {message}
       </div>
